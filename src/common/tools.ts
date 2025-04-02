@@ -1,22 +1,32 @@
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   type Result,
 } from '@modelcontextprotocol/sdk/types.js';
-import type { ITool, TRequest } from '../common/type.js';
+import type { ITool, IToolConfig, TRequest } from '../common/type.js';
 
-const tools = new Map<string, ITool<Result>>();
+const tools = new Map<string, ITool>();
 
-export function registerTool(name: string, tool: ITool<Result>) {
+export function registerTool(name: string, tool: ITool) {
   if (tools.has(name)) {
     throw new Error(`Tool ${name} already registered`);
   }
   tools.set(name, tool);
 }
 
-export function listTools() {
-  return {};
+export async function listTools() {
+  console.log('listTools', tools);
+  const toolConfig = Array.from(tools.keys()).map((name) => {
+    const { description, schema } = tools.get(name)!;
+    return {
+      name,
+      description,
+      inputSchema: schema,
+    };
+  });
+  return { tools: toolConfig };
 }
 
 /**
@@ -42,4 +52,14 @@ export async function resolveTool(request: TRequest) {
 export function mountServerTool(server: Server) {
   server.setRequestHandler(ListToolsRequestSchema, listTools);
   server.setRequestHandler(CallToolRequestSchema, resolveTool);
+}
+
+export function packTool(config: IToolConfig): ITool {
+  const { description, inputSchema, handler } = config;
+  const tool: ITool = {
+    description,
+    schema: zodToJsonSchema(inputSchema),
+    handler,
+  };
+  return tool;
 }

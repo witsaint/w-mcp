@@ -8,8 +8,14 @@ export type TRequest = z.infer<typeof CallToolRequestSchema>;
 
 export type ToolRequest = (request: TRequest) => Promise<Result>;
 
-export interface ITool<SendResultT extends Result> {
+export interface IToolConfig {
   description: string;
-  schema: SendResultT;
+  inputSchema: z.ZodObject<z.ZodRawShape>;
+  handler: ToolRequest;
+}
+
+export interface ITool {
+  description: string;
+  schema: Result;
   handler: ToolRequest;
 }
