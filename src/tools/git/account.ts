@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { packTool } from '../../common/tools.js';
-import type { ITool, TRequest } from '../../common/type.js';
+import type { TToolRequest } from '../../common/type.js';
 
 const accounts = [] as { username: string; email: string }[];
 
@@ -17,7 +17,7 @@ const checkAccountSchema = accountSchema.pick({
   username: true,
 });
 
-async function addAccount(request: TRequest) {
+async function addAccount(request: TToolRequest) {
   const { username, email } = accountSchema.parse(request.params.arguments);
   accounts.push({ username, email });
   return {
@@ -30,7 +30,7 @@ async function addAccount(request: TRequest) {
   };
 }
 
-async function listAllGitAccount(params: TRequest) {
+async function listAllGitAccount(params: TToolRequest) {
   return {
     content: accounts.map((account) => ({
       type: 'text',
@@ -39,7 +39,7 @@ async function listAllGitAccount(params: TRequest) {
   };
 }
 
-async function checkoutGitAccount(request: TRequest) {
+async function checkoutGitAccount(request: TToolRequest) {
   const { username } = checkAccountSchema.parse(request.params.arguments);
   const account = accounts.find((acc) => acc.username === username);
   if (!account) {

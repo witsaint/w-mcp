@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
   type Result,
 } from '@modelcontextprotocol/sdk/types.js';
-import type { ITool, IToolConfig, TRequest } from '../common/type.js';
+import type { ITool, IToolConfig, TToolRequest } from '../common/type.js';
 
 const tools = new Map<string, ITool>();
 
@@ -17,7 +17,6 @@ export function registerTool(name: string, tool: ITool) {
 }
 
 export async function listTools() {
-  console.log('listTools', tools);
   const toolConfig = Array.from(tools.keys()).map((name) => {
     const { description, schema } = tools.get(name)!;
     return {
@@ -37,7 +36,7 @@ export async function listTools() {
  * @returns An empty object.
  */
 
-export async function resolveTool(request: TRequest) {
+export async function resolveTool(request: TToolRequest) {
   const { name } = request.params;
 
   if (!tools.has(name)) {

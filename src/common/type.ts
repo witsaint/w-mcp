@@ -4,9 +4,9 @@ import type {
   Result,
 } from '@modelcontextprotocol/sdk/types.js';
 
-export type TRequest = z.infer<typeof CallToolRequestSchema>;
+export type TToolRequest = z.infer<typeof CallToolRequestSchema>;
 
-export type ToolRequest = (request: TRequest) => Promise<Result>;
+export type ToolRequest = (request: TToolRequest) => Promise<Result>;
 
 export interface IToolConfig {
   description: string;
