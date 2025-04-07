@@ -3,7 +3,6 @@ import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  type Result,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { ITool, IToolConfig, TToolRequest } from '../common/type.js';
 

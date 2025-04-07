@@ -42,6 +42,7 @@ async function listAllGitAccount(params: TToolRequest) {
 async function checkoutGitAccount(request: TToolRequest) {
   const { username } = checkAccountSchema.parse(request.params.arguments);
   const account = accounts.find((acc) => acc.username === username);
+
   if (!account) {
     throw new Error(`Account with username ${username} not found`);
   }
