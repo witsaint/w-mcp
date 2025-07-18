@@ -1,2 +1,125 @@
 #!/usr/bin/env node
-import{Server as l}from"@modelcontextprotocol/sdk/server/index.js";import{StdioServerTransport as p}from"@modelcontextprotocol/sdk/server/stdio.js";import{zodToJsonSchema as d}from"zod-to-json-schema";import{ListToolsRequestSchema as g,CallToolRequestSchema as h}from"@modelcontextprotocol/sdk/types.js";import{z as o}from"zod";const r=new Map;function a(e,t){if(r.has(e))throw new Error(`Tool ${e} already registered`);r.set(e,t)}async function f(){return{tools:Array.from(r.keys()).map(e=>{const{description:t,schema:n}=r.get(e);return{name:e,description:t,inputSchema:n}})}}async function T(e){const{name:t}=e.params;if(!r.has(t))throw new Error(`Tool ${t} not found`);const{handler:n}=r.get(t);return await n(e)}function S(e){e.setRequestHandler(g,f),e.setRequestHandler(h,T)}function s(e){const{description:t,inputSchema:n,handler:i}=e;return{description:t,schema:d(n),handler:i}}const c=[],y="git_add_account",w="git_list_account",_="git_checkout_account",u=o.object({username:o.string().min(1,"Username is required"),email:o.string().email("Invalid email address")}),A=u.pick({username:!0});async function C(e){const{username:t,email:n}=u.parse(e.params.arguments);return c.push({username:t,email:n}),{content:[{type:"text",text:`Added git account: ${t}, email: ${n}`}]}}async function $(e){return{content:c.map(t=>({type:"text",text:`Username: ${t.username}, Email: ${t.email}`}))}}async function v(e){const{username:t}=A.parse(e.params.arguments),n=c.find(i=>i.username===t);if(!n)throw new Error(`Account with username ${t} not found`);return{content:[{type:"text",text:`\u8BF7\u6267\u884C\u547D\u4EE4: git config --global user.name "${n.username}" && git config --global user.email "${n.email}"`}]}}const b=s({description:'\u6DFB\u52A0 git \u8D26\u53F7, Add git account, eg: { "username": "your_username", "email": "your_email" }',inputSchema:u,handler:C}),x=s({description:"\u5217\u51FA\u6240\u6709 git \u8D26\u53F7, List all git accounts",inputSchema:o.object({}),handler:$}),E=s({description:"\u5207\u6362 git \u8D26\u53F7, Switch git account",inputSchema:o.object({username:o.string().min(1,"Username is required")}),handler:v});function U(e){a(y,b),a(w,x),a(_,E),S(e)}const m=new l({name:"tcfe",version:"0.1.0"},{capabilities:{resources:{},tools:{},prompts:{}}});U(m);async function q(){const e=new p;await m.connect(e)}q().catch(e=>{console.error("Server error:",e),process.exit(1)});
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
+
+let serverContext = void 0;
+const setServerContext = (server) => {
+  serverContext = server;
+};
+const createServerInstance = () => {
+  if (serverContext) return serverContext;
+  const server = new Server(
+    {
+      name: "tcfe",
+      version: "0.1.0"
+    },
+    {
+      capabilities: {
+        resources: {},
+        tools: {},
+        prompts: {}
+      }
+    }
+  );
+  setServerContext(server);
+  return server;
+};
+
+const tools = /* @__PURE__ */ new Map();
+function registerTool(name, tool) {
+  if (tools.has(name)) {
+    throw new Error(`Tool ${name} already registered`);
+  }
+  tools.set(name, tool);
+}
+async function listTools() {
+  const toolConfig = Array.from(tools.keys()).map((name) => {
+    const { description, schema } = tools.get(name);
+    return {
+      name,
+      description,
+      inputSchema: schema
+    };
+  });
+  return { tools: toolConfig };
+}
+async function resolveTool(request) {
+  const { name } = request.params;
+  if (!tools.has(name)) {
+    throw new Error(`Tool ${name} not found`);
+  }
+  const { handler } = tools.get(name);
+  return await handler(request);
+}
+function mountServerTool(server) {
+  server.setRequestHandler(ListToolsRequestSchema, listTools);
+  server.setRequestHandler(CallToolRequestSchema, resolveTool);
+}
+function packTool(config) {
+  const { description, inputSchema, handler } = config;
+  const tool = {
+    description,
+    schema: zodToJsonSchema(inputSchema),
+    handler
+  };
+  return tool;
+}
+
+const DOC_PLAN = "doc_plan";
+const docPlanSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required")
+});
+const docPlan = async (request) => {
+  const { title, content } = docPlanSchema.parse(request.params.arguments);
+  const server = createServerInstance();
+  const response = await server.createMessage({
+    messages: [
+      {
+        role: "user",
+        content: {
+          type: "text",
+          text: `Please summarize the following text concisely:
+
+${content}`
+        }
+      }
+    ],
+    maxTokens: 500
+  });
+  return {
+    content: [
+      {
+        type: "text",
+        text: response.content.type === "text" ? response.content.text : "Unable to generate summary"
+      }
+    ]
+  };
+};
+const docPlanTool = packTool({
+  description: "\u751F\u6210\u6587\u6863\u8BA1\u5212, Generate doc plan",
+  inputSchema: z.object({
+    title: z.string().min(1, "Title is required"),
+    content: z.string().min(1, "Content is required")
+  }),
+  handler: docPlan
+});
+
+function initTools(server) {
+  registerTool(DOC_PLAN, docPlanTool);
+  mountServerTool(server);
+}
+
+const server = createServerInstance();
+initTools(server);
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+main().catch((error) => {
+  console.error("Server error:", error);
+  process.exit(1);
+});

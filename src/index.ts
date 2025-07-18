@@ -2,25 +2,14 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { createServerInstance } from './common/context.js';
 import { initTools } from './tools/index.js';
 
 /**
  * Create an MCP server with capabilities for resources (to list/read notes),
  * tools (to create new notes), and prompts (to summarize notes).
  */
-const server = new Server(
-  {
-    name: 'tcfe',
-    version: '0.1.0',
-  },
-  {
-    capabilities: {
-      resources: {},
-      tools: {},
-      prompts: {},
-    },
-  }
-);
+const server = createServerInstance();
 
 initTools(server);
 
