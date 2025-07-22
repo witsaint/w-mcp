@@ -4,7 +4,9 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { createServerInstance } from './common/context.js';
 import { mountServerPrompt } from './common/prompt.js';
+import { mountServerResource } from './common/resources.js';
 import { registerAllPrompts } from './prompts/index.js';
+import { registerAllResources } from './resources/index.js';
 import { initTools } from './tools/index.js';
 
 /**
@@ -18,6 +20,10 @@ initTools(server);
 // Initialize and mount prompts
 registerAllPrompts();
 mountServerPrompt(server);
+
+// Initialize and mount resources
+registerAllResources();
+mountServerResource(server);
 
 /**
  * Start the server using stdio transport.
