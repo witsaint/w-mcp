@@ -3,7 +3,7 @@ import { docPlanPromptInstance } from './doc/plan.js';
 
 // Register all prompts
 export function registerAllPrompts() {
-  registerPrompt('doc_plan_prompt', docPlanPromptInstance);
+  // registerPrompt('doc_plan_prompt', docPlanPromptInstance);
 }
 
 // Export prompt instances
