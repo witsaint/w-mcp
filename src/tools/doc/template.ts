@@ -1,10 +1,10 @@
+import fs from 'fs';
+import path from 'path';
 import { z } from 'zod';
 import { packTool } from '../../common/tools.js';
 import type { TToolRequest } from '../../common/type.js';
-import fs from 'fs';
-import path from 'path';
 
-const TEMPLATE_DIR = path.join(__dirname, '../../templates/nextra-docs');
+const TEMPLATE_DIR = path.join(__dirname, '../../templates/');
 
 export const CREATE_DOCS_TEMPLATE = 'create_docs_template';
 
@@ -15,42 +15,50 @@ const createDocsTemplateSchema = z.object({
 });
 
 export const createDocsTemplate = async (request: TToolRequest) => {
-  const { targetPath, projectName = 'My Documentation', githubUrl } = createDocsTemplateSchema.parse(request.params.arguments);
-  
+  const {
+    targetPath,
+    projectName = 'My Documentation',
+    githubUrl,
+  } = createDocsTemplateSchema.parse(request.params.arguments);
+
   try {
     // Create target directory if it doesn't exist
     if (!fs.existsSync(targetPath)) {
       fs.mkdirSync(targetPath, { recursive: true });
     }
-    
+
     // Copy template files recursively
     await copyTemplateFiles(TEMPLATE_DIR, targetPath);
-    
+
     // Customize the template files
     await customizeTemplate(targetPath, projectName, githubUrl);
-    
+
     return {
       content: [
         {
           type: 'text',
-          text: `Successfully created Nextra documentation template at: ${targetPath}\n\nTo get started:\n1. cd ${targetPath}\n2. npm install\n3. npm run dev\n\nThe documentation site will be available at http://localhost:3000`
-        }
-      ]
+          text: `Successfully created Nextra documentation template at: ${targetPath}
+            install the dependencies: yarn
+            then do the next task planning
+          `,
+        },
+      ],
     };
   } catch (error) {
     return {
       content: [
         {
           type: 'text',
-          text: `Error creating documentation template: ${error instanceof Error ? error.message : String(error)}`
-        }
-      ]
+          text: `Error creating documentation template: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
     };
   }
 };
 
 export const createDocsTemplateTool = packTool({
-  description: 'Create a Nextra documentation site template at the specified location',
+  description:
+    'Create a Nextra documentation site template at the specified location',
   inputSchema: z.object({
     targetPath: z.string().min(1, 'Target path is required'),
     projectName: z.string().optional(),
@@ -61,13 +69,13 @@ export const createDocsTemplateTool = packTool({
 
 async function copyTemplateFiles(sourceDir: string, targetDir: string) {
   const items = fs.readdirSync(sourceDir);
-  
+
   for (const item of items) {
     const sourcePath = path.join(sourceDir, item);
     const targetPath = path.join(targetDir, item);
-    
+
     const stat = fs.statSync(sourcePath);
-    
+
     if (stat.isDirectory()) {
       fs.mkdirSync(targetPath, { recursive: true });
       await copyTemplateFiles(sourcePath, targetPath);
@@ -77,24 +85,34 @@ async function copyTemplateFiles(sourceDir: string, targetDir: string) {
   }
 }
 
-async function customizeTemplate(targetPath: string, projectName: string, githubUrl?: string) {
+async function customizeTemplate(
+  targetPath: string,
+  projectName: string,
+  githubUrl?: string
+) {
   // Update theme.config.tsx
   const themeConfigPath = path.join(targetPath, 'theme.config.tsx');
   if (fs.existsSync(themeConfigPath)) {
     let themeConfig = fs.readFileSync(themeConfigPath, 'utf-8');
-    
+
     // Replace project name
     themeConfig = themeConfig.replace('My Documentation', projectName);
-    
+
     // Replace GitHub URL if provided
     if (githubUrl) {
-      themeConfig = themeConfig.replace('https://github.com/your-username/your-repo', githubUrl);
-      themeConfig = themeConfig.replace('https://github.com/your-username/your-repo/tree/main', `${githubUrl}/tree/main`);
+      themeConfig = themeConfig.replace(
+        'https://github.com/your-username/your-repo',
+        githubUrl
+      );
+      themeConfig = themeConfig.replace(
+        'https://github.com/your-username/your-repo/tree/main',
+        `${githubUrl}/tree/main`
+      );
     }
-    
+
     fs.writeFileSync(themeConfigPath, themeConfig);
   }
-  
+
   // Update package.json name
   const packageJsonPath = path.join(targetPath, 'package.json');
   if (fs.existsSync(packageJsonPath)) {

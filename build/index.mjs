@@ -278,17 +278,14 @@ This prompt has the ability to:
 2. Suggest document sections and organization
 3. Provide recommendations for content improvement
 4. Generate outlines and summaries
-5. Create Nextra documentation templates with the latest versions (Nextra 4.2.17, Next.js 15.3.2, React 18.2.0)
+5. If detailed steps need to be added during the thinking process, update the unfinished steps in a timely manner, for example, refining the corresponding content of the document menu requires additional steps
 
 When to use this prompt:
 1. When you need to create a structured document plan
 2. When you want to organize content into logical sections
 3. When you need guidance on document structure and flow
-4. When initializing or updating documentation templates with the latest Nextra versions
+4. When initializing or updating documentation templates
 
-Available tools that this prompt can guide you to use:
-- create_docs_template: Creates/updates Nextra documentation templates with latest versions
-- doc_gen_polit: Analyzes task completion and provides next step recommendations
 `;
 const docGenBeginTool = packTool({
   description: docPlanPromptDesc,
@@ -324,23 +321,9 @@ const docGenPolit = async (request) => {
     if (nextIdx !== -1) {
       nextStep = nextIdx;
       nextAction = `\u8BF7\u7EE7\u7EED\u6267\u884C\u7B2C${nextStep + 1}\u6B65\uFF1A${taskList[nextStep]}`;
-      if (taskList[nextStep].includes("Nextra") || taskList[nextStep].includes("\u6587\u6863\u6A21\u677F") || taskList[nextStep].includes("\u521D\u59CB\u5316")) {
-        nextAction += `
-
-\u{1F4A1} \u63D0\u793A\uFF1A\u5982\u9700\u521B\u5EFA\u6216\u66F4\u65B0Nextra\u6587\u6863\u6A21\u677F\uFF0C\u8BF7\u4F7F\u7528 'create_docs_template' \u5DE5\u5177\uFF0C\u5B83\u5305\u542B\u6700\u65B0\u7248\u672C\uFF1A
-- Nextra 4.2.17
-- Next.js 15.3.2  
-- React 18.2.0
-\u53C2\u6570\uFF1AtargetPath\uFF08\u5FC5\u586B\uFF09\uFF0CprojectName\uFF08\u53EF\u9009\uFF09\uFF0CgithubUrl\uFF08\u53EF\u9009\uFF09`;
-      }
     } else {
       if (statusList[currentStep] !== "done") {
         nextAction = `\u8BF7\u5B8C\u6210\u5F53\u524D\u6B65\u9AA4\uFF1A${taskList[currentStep]}`;
-        if (taskList[currentStep].includes("Nextra") || taskList[currentStep].includes("\u6587\u6863\u6A21\u677F") || taskList[currentStep].includes("\u521D\u59CB\u5316")) {
-          nextAction += `
-
-\u{1F4A1} \u63D0\u793A\uFF1A\u5982\u9700\u521B\u5EFA\u6216\u66F4\u65B0Nextra\u6587\u6863\u6A21\u677F\uFF0C\u8BF7\u4F7F\u7528 'create_docs_template' \u5DE5\u5177`;
-        }
       } else {
         const firstPending = statusList.findIndex((s) => s !== "done");
         if (firstPending !== -1) {
@@ -368,7 +351,7 @@ const docGenPolit = async (request) => {
   };
 };
 const docGenPolitTool = packTool({
-  description: "\u5206\u6790\u4EFB\u52A1\u5B8C\u6210\u60C5\u51B5\u5E76\u7ED9\u51FA\u4E0B\u4E00\u6B65\u5EFA\u8BAE\u3002\u5F53\u4EFB\u52A1\u6D89\u53CANextra\u6587\u6863\u6A21\u677F\u65F6\uFF0C\u4F1A\u81EA\u52A8\u63D0\u793A\u4F7F\u7528create_docs_template\u5DE5\u5177\u521B\u5EFA\u6700\u65B0\u7248\u672C\u6A21\u677F",
+  description: "\u5206\u6790\u6587\u6863\u751F\u6210\u4EFB\u52A1\u5B8C\u6210\u60C5\u51B5\u5E76\u7ED9\u51FA\u4E0B\u4E00\u6B65\u5EFA\u8BAE\u3002",
   inputSchema: docGenPolitSchema,
   handler: docGenPolit
 });

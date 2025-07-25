@@ -57,17 +57,14 @@ This prompt has the ability to:
 2. Suggest document sections and organization
 3. Provide recommendations for content improvement
 4. Generate outlines and summaries
-5. Create Nextra documentation templates with the latest versions (Nextra 4.2.17, Next.js 15.3.2, React 18.2.0)
+5. If detailed steps need to be added during the thinking process, update the unfinished steps in a timely manner, for example, refining the corresponding content of the document menu requires additional steps
 
 When to use this prompt:
 1. When you need to create a structured document plan
 2. When you want to organize content into logical sections
 3. When you need guidance on document structure and flow
-4. When initializing or updating documentation templates with the latest Nextra versions
+4. When initializing or updating documentation templates
 
-Available tools that this prompt can guide you to use:
-- create_docs_template: Creates/updates Nextra documentation templates with latest versions
-- doc_gen_polit: Analyzes task completion and provides next step recommendations
 `;
 
 export const docGenBeginTool = packTool({

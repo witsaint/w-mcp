@@ -35,32 +35,10 @@ export const docGenPolit = async (request: TToolRequest) => {
     if (nextIdx !== -1) {
       nextStep = nextIdx;
       nextAction = `请继续执行第${nextStep + 1}步：${taskList[nextStep]}`;
-
-      // 如果下一步涉及文档模板创建，提供额外指导
-      if (
-        taskList[nextStep].includes('Nextra') ||
-        taskList[nextStep].includes('文档模板') ||
-        taskList[nextStep].includes('初始化')
-      ) {
-        nextAction += `\n\n💡 提示：如需创建或更新Nextra文档模板，请使用 'create_docs_template' 工具，它包含最新版本：
-- Nextra 4.2.17
-- Next.js 15.3.2  
-- React 18.2.0
-参数：targetPath（必填），projectName（可选），githubUrl（可选）`;
-      }
     } else {
       // 如果当前步骤未完成，提示继续当前步骤
       if (statusList[currentStep] !== 'done') {
         nextAction = `请完成当前步骤：${taskList[currentStep]}`;
-
-        // 同样为当前步骤提供模板工具提示
-        if (
-          taskList[currentStep].includes('Nextra') ||
-          taskList[currentStep].includes('文档模板') ||
-          taskList[currentStep].includes('初始化')
-        ) {
-          nextAction += `\n\n💡 提示：如需创建或更新Nextra文档模板，请使用 'create_docs_template' 工具`;
-        }
       } else {
         // 否则回到第一个未完成的任务
         const firstPending = statusList.findIndex((s) => s !== 'done');
@@ -88,8 +66,7 @@ export const docGenPolit = async (request: TToolRequest) => {
 };
 
 export const docGenPolitTool = packTool({
-  description:
-    '分析任务完成情况并给出下一步建议。当任务涉及Nextra文档模板时，会自动提示使用create_docs_template工具创建最新版本模板',
+  description: '分析文档生成任务完成情况并给出下一步建议。',
   inputSchema: docGenPolitSchema,
   handler: docGenPolit,
 });
