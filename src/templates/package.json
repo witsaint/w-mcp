@@ -1,0 +1,66 @@
+{
+  "name": "biz-doc-tcloan-sweb",
+  "version": "0.0.1",
+  "description": "Nextra docs template",
+  "homepage": "https://gitlab.itcjf.com/fex/docs/biz-doc-design-sweb#readme",
+  "bugs": {
+    "url": "https://gitlab.itcjf.com/fex/docs/biz-doc-design-sweb/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.itcjf.com/fex/docs/biz-doc-design-sweb"
+  },
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "analyze": "cross-env ANALYZE=true next build",
+    "build": "cross-env NODE_OPTIONS='--no-warnings' next build && yarn postbuild",
+    "build-docker": "cross-env NEXT_BUILD_ENV_OUTPUT=standalone next build && yarn postbuild && hyper-next-standalone",
+    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
+    "dev": "APP_ENV=rc hyper-env -- next dev -p 3000 -H 0.0.0.0",
+    "fix-all-files": "eslint . --fix",
+    "lint": "eslint .",
+    "sitemap": "next-sitemap",
+    "start": "APP_ENV=prod hyper-env -- next start -p 3000 -H 0.0.0.0",
+    "start:integration": "APP_ENV=integration hyper-env -- next start",
+    "start:prod": "APP_ENV=prod hyper-env -- next start",
+    "start:rc": "APP_ENV=rc hyper-env -- next start",
+    "test": "echo 'No tests yet'",
+    "typecheck": "tsc --project ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@hyperse/hyper-env": "^1.0.14",
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "next": "^15.3.2",
+    "next-runtime-env": "^3.3.0",
+    "next-sitemap": "^4.2.3",
+    "nextra": "^4.2.17",
+    "nextra-theme-docs": "^4.2.17",
+    "postcss": "^8.5.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss": "^4.1.7"
+  },
+  "devDependencies": {
+    "@hyperse/eslint-config-hyperse": "^1.4.4",
+    "@tailwindcss/postcss": "^4.1.7",
+    "@types/node": "22.15.21",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "cross-env": "7.0.3",
+    "eslint": "^9.9.1",
+    "lint-staged": "16.0.0",
+    "pagefind": "1.3.0",
+    "prettier": "3.5.3",
+    "typescript": "5.8.3",
+    "vitest": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": "please-use-yarn",
+    "yarn": ">=1.22.0"
+  },
+  "packageManager": "yarn@4.4.0"
+}

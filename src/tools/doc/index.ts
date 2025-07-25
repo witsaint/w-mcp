@@ -51,3 +51,4 @@ export const demoTool = packTool({
 });
 
 export * from './polit.js';
+export * from './template.js';
