@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { packTool } from '../../common/tools.js';
 import type { TToolRequest } from '../../common/type.js';
 
-const TEMPLATE_DIR = path.join(__dirname, '../../templates/');
+const TEMPLATE_DIR = path.join(process.cwd(), '../templates/');
 
 export const CREATE_DOCS_TEMPLATE = 'create_docs_template';
 
@@ -30,20 +30,27 @@ export const createDocsTemplate = async (request: TToolRequest) => {
     // Copy template files recursively
     await copyTemplateFiles(TEMPLATE_DIR, targetPath);
 
-    // Customize the template files
+    // // Customize the template files
     await customizeTemplate(targetPath, projectName, githubUrl);
-
     return {
       content: [
         {
           type: 'text',
-          text: `Successfully created Nextra documentation template at: ${targetPath}
-            install the dependencies: yarn
-            then do the next task planning
-          `,
+          text: TEMPLATE_DIR,
         },
       ],
     };
+    // return {
+    //   content: [
+    //     {
+    //       type: 'text',
+    //       text: `Successfully created Nextra documentation template at: ${targetPath}
+    //         install the dependencies: yarn
+    //         then do the next task planning
+    //       `,
+    //     },
+    //   ],
+    // };
   } catch (error) {
     return {
       content: [
