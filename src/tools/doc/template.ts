@@ -4,7 +4,12 @@ import { z } from 'zod';
 import { packTool } from '../../common/tools.js';
 import type { TToolRequest } from '../../common/type.js';
 
-const TEMPLATE_DIR = path.join(process.cwd(), '../templates/');
+// 改进的模板目录路径解析
+function getTemplateDir(): string {
+  return path.join(new URL(import.meta.url).pathname, '../templates');
+}
+
+const TEMPLATE_DIR = getTemplateDir();
 
 export const CREATE_DOCS_TEMPLATE = 'create_docs_template';
 
@@ -65,7 +70,7 @@ export const createDocsTemplate = async (request: TToolRequest) => {
 
 export const createDocsTemplateTool = packTool({
   description:
-    'Create a Nextra documentation site template at the specified location',
+    'After doc_gen_begin，An Step for gen doc。Create a Nextra documentation site template at the specified location, targetPath is the .doc folder, eg: /your/project/.doc',
   inputSchema: z.object({
     targetPath: z.string().min(1, 'Target path is required'),
     projectName: z.string().optional(),
